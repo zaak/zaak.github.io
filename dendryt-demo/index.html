@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Dendryt Demo</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <style>
+        body {
+            background: #efefef;
+        }
+        canvas {
+            border: 1px solid #aaa;
+            cursor: crosshair;
+            background: #fff;
+            border-radius: 5px;
+            box-shadow: #aaa 0 0 10px;
+        }
+        .progress {
+            margin-bottom: 0;
+        }
+    </style>
+</head>
+<body>
+<div id="container" class="container">
+    <div class="row">
+        <div class="col-sm-12">
+            <h1 style="margin-bottom: 30px"><a href="https://github.com/zaak/dendryt">Dendryt</a> Text Recognition Demo</h1>
+        </div>
+    </div>
+    <div class="row" style="margin-bottom: 30px">
+        <div class="col-sm-12">
+            <p>Neural network used in this example was trained with
+                <a href="https://archive.ics.uci.edu/ml/datasets/Semeion+Handwritten+Digit">Semeion Handwritten Digit Data Set</a>
+                (<a href="semeion.png">image</a>).
+            </p>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-4 sol-sm-6">
+            <p>Try drawing a digit in the box below.</p>
+            <div>
+                <canvas id="drawing" width="300" height="300" class="pull-left"></canvas>
+            </div>
+        </div>
+        <div class="col-md-2 col-sm-6 text-center">
+            <button style="margin-top: 30px;min-width: 150px;display: inline-block;" id="resetDrawing" class="btn btn-default">Clear</button>
+            <div id="infoBox" style="margin-top: 20px"></div>
+        </div>
+
+        <div class="col-md-6 col-sm-12 col-xs-12">
+            <div id="netResponse" style="margin-top: 20px"></div>
+        </div>
+    </div>
+</div>
+<script src="bundle.js"></script>
+</body>
+</html>
