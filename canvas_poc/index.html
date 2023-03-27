@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Canvas PoC</title>
+    <style>
+        #canvas {
+            border: 1px solid #aaa;
+            margin: 10px auto;
+            display: block;
+            background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQAQMAAAAlPW0iAAAAA3NCSVQICAjb4U/gAAAABlBMVEXMzMz////TjRV2AAAACXBIWXMAAArrAAAK6wGCiw1aAAAAHHRFWHRTb2Z0d2FyZQBBZG9iZSBGaXJld29ya3MgQ1M26LyyjAAAABFJREFUCJlj+M/AgBVhF/0PAH6/D/HkDxOGAAAAAElFTkSuQmCC');
+        }
+
+        body {
+            background: #fff;
+        }
+
+        input {
+            display: block;
+            margin: 0 auto;
+            width: 30%;
+        }
+
+        #loading {
+            position: absolute;
+            display: block;
+            width: 100%;
+            text-align: center;
+            top: 50%;
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 3em;
+            background: white;
+        }
+
+    </style>
+</head>
+<body>
+    <span id="loading">Loading big image...</span>
+    <canvas id="canvas" width="1000" height="800"></canvas>
+    <input id="angle" type="range" min="0" max="360" value="180" />
+    <script type="text/javascript">
+        (() => {
+            const canvas = document.getElementById('canvas');
+
+            let img = new Image();
+            img.src = 'https://ckbox.cloud/l4NYvd3H29UkWh7Unr3z/assets/S1Ft7CD7_VCA/file';
+            // img.src = 'test.jpeg';
+
+            img.onload = () => {
+                document.getElementById('loading').remove();
+                console.log('got image');
+                angleChanged();
+            }
+
+            let isMouseDown = false;
+            let startClientX, startClientY;
+            let dx = 0, dy = 0, prev_dx, prev_dy;
+
+            const onMouseDown = (evt) => {
+                console.log('mouseDown', evt);
+                startClientX = evt.clientX;
+                startClientY = evt.clientY;
+                prev_dx = dx;
+                prev_dy = dy;
+                isMouseDown = true;
+            };
+
+            const onMouseUp = (evt) => {
+                console.log('mouseUp', evt);
+                isMouseDown = false;
+            }
+
+            const onMouseMove = (evt) => {
+                if (isMouseDown) {
+                    console.log('moving...');
+
+                    console.log(evt);
+
+                    const sdx = (startClientX - evt.clientX);
+                    const sdy = (startClientY - evt.clientY)
+
+                    // https://en.wikipedia.org/wiki/Rotation_of_axes#Examples_in_two_dimensions
+                    const ddx = sdx * Math.cos(angleInRadians) + sdy * Math.sin(angleInRadians);
+                    const ddy = sdy * Math.cos(angleInRadians) - sdx * Math.sin(angleInRadians);
+
+                    dx = prev_dx + ddx;
+                    dy = prev_dy + ddy;
+
+                    console.log('dx, dy: ', [dx, dy]);
+
+                    redraw({move: true});
+                }
+            }
+
+            let angleInRadians = 0.0;
+            let zoom = 3.0;
+
+            const redraw = (e) => {
+                const ctx = canvas.getContext('2d');
+
+                const x = (canvas.width / 2);
+                const y = (canvas.height / 2);
+                const width = img.width;
+                const height = img.height;
+
+                console.log('cth x, y: ', [x, y]);
+
+                ctx.save();
+
+                // ctx.translate(0, 0);
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.translate(x, y);
+                ctx.rotate(angleInRadians);
+
+                // console.log('drawImage: ', [width, height, (-width) / (2*zoom)-ddx, (-height) / (2*zoom)-ddy, (width)/zoom, (height)/zoom]);
+
+                ctx.drawImage(img, 0, 0, width, height, (-width) / (2 * zoom) - dx, (-height) / (2 * zoom) - dy, (width) / zoom, (height) / zoom);
+                console.log('zoom: ', zoom);
+
+                // ctx.rotate(-angleInRadians);
+                // ctx.translate(-x, -y);
+                ctx.restore();
+            }
+
+            const angleChanged = evt => {
+                const angle = evt ? (evt.target.value - 180) : 0;
+                angleInRadians = angle * Math.PI / 180;
+
+                redraw();
+            }
+
+            const zoomSpeed = 0.001;
+
+            const onWheel = evt => {
+                evt.preventDefault();
+                evt.stopPropagation();
+                console.log(evt);
+
+                if (evt.deltaY > 0) {
+                    zoom = Math.min(8, zoom + (zoomSpeed * evt.deltaY));
+                } else {
+                    zoom = Math.max(0.5, zoom + (zoomSpeed * evt.deltaY));
+                }
+
+                redraw();
+            }
+
+            canvas.addEventListener('wheel', onWheel);
+            canvas.addEventListener('mousedown', onMouseDown);
+            document.addEventListener('mouseup', onMouseUp);
+            canvas.addEventListener('mousemove', onMouseMove);
+            document.getElementById('angle').addEventListener('change', angleChanged);
+            document.getElementById('angle').addEventListener('input', angleChanged);
+        })();
+    </script>
+</body>
+</html>
